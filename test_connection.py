@@ -9,8 +9,8 @@ SETUP:
     pip install python-binance python-dotenv
 
 Create a .env file in the same folder with:
-    BINANCE_API_KEY=7oRIrew89Zw0FKgQbyXxyKzBafY3tJgk6SGlmoapkw3UkpQMxLRaxRY7m6Nz9K4U
-    BINANCE_API_SECRET=nMIvGmIT3NxCTVlyFIO2V3rf84P6gOCxykTwD4pYmvcTXHOJPrhKGoULyxfia7Uy
+    BINANCE_API_KEY= API_KEY
+    BINANCE_API_SECRET= API_SECRET
 
 RUN:
     python test_connection.py
