@@ -1,0 +1,62 @@
+' ============================================================
+' CreateLocalAdmin.vbs
+' Purpose: Create a new local user and add it to Administrators
+' Requirements: Must be run as Administrator
+' ============================================================
+
+Option Explicit
+
+Dim strUser, strPass, strDesc, objShell, objNetwork, objWMIService
+Dim objUser, objGroup, objComputer
+
+' --- Configuration ---
+strUser = "NewAdminUser"          ' Change to desired username
+strPass = "YourStrongPassword123" ' Change to a secure password
+strDesc = "Local admin account"   ' Optional description
+
+' --- Check if running with admin rights ---
+If Not IsAdmin() Then
+    WScript.Echo "ERROR: This script requires administrator privileges."
+    WScript.Echo "Please right-click the script and select 'Run as administrator'."
+    WScript.Quit 1
+End If
+
+' --- Create the user account ---
+On Error Resume Next
+Set objNetwork = CreateObject("WScript.Network")
+Set objComputer = GetObject("WinNT://" & objNetwork.ComputerName)
+Set objUser = objComputer.Create("User", strUser)
+objUser.SetPassword strPass
+objUser.FullName = strUser
+objUser.Description = strDesc
+objUser.SetInfo
+
+If Err.Number <> 0 Then
+    WScript.Echo "Failed to create user: " & Err.Description
+    WScript.Quit 1
+End If
+On Error GoTo 0
+
+WScript.Echo "User '" & strUser & "' created successfully."
+
+' --- Add user to the local Administrators group ---
+On Error Resume Next
+Set objGroup = GetObject("WinNT://" & objNetwork.ComputerName & "/Administrators,group")
+objGroup.Add("WinNT://" & objNetwork.ComputerName & "/" & strUser & ",user")
+
+If Err.Number <> 0 Then
+    WScript.Echo "Failed to add user to Administrators: " & Err.Description
+    WScript.Quit 1
+End If
+On Error GoTo 0
+
+WScript.Echo "User '" & strUser & "' added to the Administrators group."
+WScript.Echo "Operation completed."
+
+' --- Helper function to check for admin rights ---
+Function IsAdmin()
+    Dim objShellApp
+    Set objShellApp = CreateObject("Shell.Application")
+    ' If the current user is admin, the Windows directory is not redirected
+    IsAdmin = (objShellApp.Namespace(0) Is Nothing)
+End Function
